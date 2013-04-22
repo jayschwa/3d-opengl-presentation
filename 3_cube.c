@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <GL/gl.h>
 
-const char *title = "3D Cube";
+const char *title = "3D Space";
 
 extern const char tex_data[];
 
@@ -20,6 +20,8 @@ bool sceneInit()
 {
 	GLint attribute;   // Vertex attribute handle
 	GLuint vertex_buf; // Vertex buffer handle
+
+/** Axes **********************************************************************/
 
 	g_axis_program = loadprogram("axis");
 
@@ -51,6 +53,8 @@ bool sceneInit()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+/** Cube **********************************************************************/
+
 	g_main_program = loadprogram(__FILE__);
 
 	// Create buffer for vertex data
@@ -62,10 +66,37 @@ bool sceneInit()
 	// Upload vertex data to buffer
 	float vertex_data[] = {
 		// X     Y     Z     U     V
-		-0.8,  0.8,  0.0,  0.0,  0.0,   // v0: upper left
-		-0.8, -0.8,  0.0,  0.0,  1.0,   // v1: lower left
-		 0.8,  0.8,  0.0,  1.0,  0.0,   // v2: upper right
-		 0.8, -0.8,  0.0,  1.0,  1.0 }; // v3: lower right
+		// Front face
+		-0.5,  0.5, -0.5,  0.0,  0.0,   // v0: upper left
+		-0.5, -0.5, -0.5,  0.0,  1.0,   // v1: lower left
+		 0.5,  0.5, -0.5,  1.0,  0.0,   // v2: upper right
+		 0.5, -0.5, -0.5,  1.0,  1.0,   // v3: lower right
+		// Back face
+		-0.5,  0.5,  0.5,  0.0,  0.0,   // v4: upper left
+		-0.5, -0.5,  0.5,  0.0,  1.0,   // v5: lower left
+		 0.5,  0.5,  0.5,  1.0,  0.0,   // v6: upper right
+		 0.5, -0.5,  0.5,  1.0,  1.0,   // v7: lower right
+		// Left face
+		-0.5,  0.5, -0.5,  0.0,  0.0,   // v8:  upper left
+		-0.5, -0.5, -0.5,  0.0,  1.0,   // v9:  lower left
+		-0.5,  0.5,  0.5,  1.0,  0.0,   // v10: upper right
+		-0.5, -0.5,  0.5,  1.0,  1.0,   // v11: lower right
+		// Right face
+		 0.5,  0.5, -0.5,  0.0,  0.0,   // v12: upper left
+		 0.5, -0.5, -0.5,  0.0,  1.0,   // v13: lower left
+		 0.5,  0.5,  0.5,  1.0,  0.0,   // v14: upper right
+		 0.5, -0.5,  0.5,  1.0,  1.0,   // v15: lower right
+		// Top face
+		-0.5,  0.5, -0.5,  0.0,  0.0,   // v16: upper left
+		-0.5,  0.5,  0.5,  0.0,  1.0,   // v17: lower left
+		 0.5,  0.5, -0.5,  1.0,  0.0,   // v18: upper right
+		 0.5,  0.5,  0.5,  1.0,  1.0,   // v19: lower right
+		// Bottom face
+		-0.5, -0.5, -0.5,  0.0,  0.0,   // v20: upper left
+		-0.5, -0.5,  0.5,  0.0,  1.0,   // v21: lower left
+		 0.5, -0.5, -0.5,  1.0,  0.0,   // v22: upper right
+		 0.5, -0.5,  0.5,  1.0,  1.0 }; // v23: lower right
+
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(vertex_data) * sizeof(vertex_data[0]), // Size (bytes)
 	             vertex_data,     // Pointer to data
@@ -144,11 +175,11 @@ void sceneDraw()
 	// Clear screen
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Draw axis
+	// Draw axes
 	glUseProgram(g_axis_program);
 	glBindVertexArray(g_axis_vao_state);
 	char axes[] = { 0, 1, 0, 2, 0, 3 };
-	glDrawElements(GL_LINES, sizeof(axis), GL_UNSIGNED_BYTE, axes);
+	glDrawElements(GL_LINES, sizeof(axes), GL_UNSIGNED_BYTE, axes);
 	glBindVertexArray(0);
 
 	// Use main program for drawing
@@ -164,9 +195,14 @@ void sceneDraw()
 	// Tell tex_image sampler to read from texture unit 0
 	glUniform1i(gu_sampler, 0);
 
-	// Draw triangles
-	char indices[] = { 0, 1, 2,      // Upper left triangle
-	                   3, 2, 1 };    // Lower right triangle
+	// Draw cube faces
+	char indices[] = { 0,  1,  2,  3,  2,  1,   // Front face
+	                   4,  5,  6,  7,  6,  5,   // Back face
+	                   8,  9, 10, 11, 10,  9,   // Left face
+	                  12, 13, 14, 15, 14, 13,   // Right face
+	                  16, 17, 18, 19, 18, 17,   // Top face
+	                  12, 13, 22, 23, 22, 21 }; // Bottom face
+
 	glDrawElements(GL_TRIANGLES,     // Draw mode
 	               sizeof(indices),  // Number of elements
 	               GL_UNSIGNED_BYTE, // Element data type
