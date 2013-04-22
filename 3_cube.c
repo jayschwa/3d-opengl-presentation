@@ -5,25 +5,42 @@ const char *title = "3D Space";
 
 extern const char tex_data[];
 
+const float identity[] = {
+	1.0, 0.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0
+};
+float g_view_position[] = { 1.0,  1.0,  1.0 };
+
 GLuint g_axis_program;
 GLuint g_axis_vao_state;
+GLint  g_axis_u_view_position;
 
 GLuint g_main_program;   // Shader program handle
 GLuint g_main_vao_state; // Attribute state handle
-GLuint g_texture;        // Texture handle
 
-GLint gu_sampler;        // Texture sampler handle
+GLint g_main_u_view_position; // View position handle
+GLint g_main_u_tex_image;     // Texture sampler handle
+
+GLuint g_texture; // Texture handle
 
 // Initializes the scene
 // Called once at the start
 bool sceneInit()
 {
+	glEnable(GL_CULL_FACE);  // Don't draw back side of triangles
+	glEnable(GL_DEPTH_TEST); // Don't draw triangles behind other triangles
+
 	GLint attribute;   // Vertex attribute handle
 	GLuint vertex_buf; // Vertex buffer handle
 
 /** Axes **********************************************************************/
 
 	g_axis_program = loadprogram("axis");
+
+	// Get uniform locations
+	g_axis_u_view_position = glGetUniformLocation(g_axis_program, "view_position");
 
 	// Setup axis program's vertex data buffer
 	glGenBuffers(1, &vertex_buf);
@@ -57,6 +74,10 @@ bool sceneInit()
 
 	g_main_program = loadprogram(__FILE__);
 
+	// Get uniform locations
+	g_main_u_view_position = glGetUniformLocation(g_main_program, "view_position");
+	g_main_u_tex_image = glGetUniformLocation(g_main_program, "tex_image");
+
 	// Create buffer for vertex data
 	glGenBuffers(1, &vertex_buf);
 
@@ -67,35 +88,35 @@ bool sceneInit()
 	float vertex_data[] = {
 		// X     Y     Z     U     V
 		// Front face
-		-0.5,  0.5, -0.5,  0.0,  0.0,   // v0: upper left
-		-0.5, -0.5, -0.5,  0.0,  1.0,   // v1: lower left
-		 0.5,  0.5, -0.5,  1.0,  0.0,   // v2: upper right
-		 0.5, -0.5, -0.5,  1.0,  1.0,   // v3: lower right
+		-0.5,  0.5,  0.5,  0.0,  0.0,   // v0: upper left
+		-0.5, -0.5,  0.5,  0.0,  1.0,   // v1: lower left
+		 0.5,  0.5,  0.5,  1.0,  0.0,   // v2: upper right
+		 0.5, -0.5,  0.5,  1.0,  1.0,   // v3: lower right
 		// Back face
-		-0.5,  0.5,  0.5,  0.0,  0.0,   // v4: upper left
-		-0.5, -0.5,  0.5,  0.0,  1.0,   // v5: lower left
-		 0.5,  0.5,  0.5,  1.0,  0.0,   // v6: upper right
-		 0.5, -0.5,  0.5,  1.0,  1.0,   // v7: lower right
+		 0.5,  0.5, -0.5,  0.0,  0.0,   // v4: upper left
+		 0.5, -0.5, -0.5,  0.0,  1.0,   // v5: lower left
+		-0.5,  0.5, -0.5,  1.0,  0.0,   // v6: upper right
+		-0.5, -0.5, -0.5,  1.0,  1.0,   // v7: lower right
 		// Left face
 		-0.5,  0.5, -0.5,  0.0,  0.0,   // v8:  upper left
 		-0.5, -0.5, -0.5,  0.0,  1.0,   // v9:  lower left
 		-0.5,  0.5,  0.5,  1.0,  0.0,   // v10: upper right
 		-0.5, -0.5,  0.5,  1.0,  1.0,   // v11: lower right
 		// Right face
-		 0.5,  0.5, -0.5,  0.0,  0.0,   // v12: upper left
-		 0.5, -0.5, -0.5,  0.0,  1.0,   // v13: lower left
-		 0.5,  0.5,  0.5,  1.0,  0.0,   // v14: upper right
-		 0.5, -0.5,  0.5,  1.0,  1.0,   // v15: lower right
+		 0.5,  0.5,  0.5,  0.0,  0.0,   // v12: upper left
+		 0.5, -0.5,  0.5,  0.0,  1.0,   // v13: lower left
+		 0.5,  0.5, -0.5,  1.0,  0.0,   // v14: upper right
+		 0.5, -0.5, -0.5,  1.0,  1.0,   // v15: lower right
 		// Top face
 		-0.5,  0.5, -0.5,  0.0,  0.0,   // v16: upper left
 		-0.5,  0.5,  0.5,  0.0,  1.0,   // v17: lower left
 		 0.5,  0.5, -0.5,  1.0,  0.0,   // v18: upper right
 		 0.5,  0.5,  0.5,  1.0,  1.0,   // v19: lower right
 		// Bottom face
-		-0.5, -0.5, -0.5,  0.0,  0.0,   // v20: upper left
-		-0.5, -0.5,  0.5,  0.0,  1.0,   // v21: lower left
-		 0.5, -0.5, -0.5,  1.0,  0.0,   // v22: upper right
-		 0.5, -0.5,  0.5,  1.0,  1.0 }; // v23: lower right
+		-0.5, -0.5,  0.5,  0.0,  0.0,   // v20: upper left
+		-0.5, -0.5, -0.5,  0.0,  1.0,   // v21: lower left
+		 0.5, -0.5,  0.5,  1.0,  0.0,   // v22: upper right
+		 0.5, -0.5, -0.5,  1.0,  1.0 }; // v23: lower right
 
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(vertex_data) * sizeof(vertex_data[0]), // Size (bytes)
@@ -162,9 +183,6 @@ bool sceneInit()
 	// Unbind texture from "mount point"
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Get shader's "tex_image" sampler uniform
-	gu_sampler = glGetUniformLocation(g_main_program, "tex_image");
-
 	return true;
 }
 
@@ -173,10 +191,11 @@ bool sceneInit()
 void sceneDraw()
 {
 	// Clear screen
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Draw axes
 	glUseProgram(g_axis_program);
+	glUniform3fv(g_axis_u_view_position, 1, g_view_position);
 	glBindVertexArray(g_axis_vao_state);
 	char axes[] = { 0, 1, 0, 2, 0, 3 };
 	glDrawElements(GL_LINES, sizeof(axes), GL_UNSIGNED_BYTE, axes);
@@ -184,6 +203,9 @@ void sceneDraw()
 
 	// Use main program for drawing
 	glUseProgram(g_main_program);
+
+	// Write to uniforms
+	glUniform3fv(g_main_u_view_position, 1, g_view_position);
 
 	// Restore state
 	glBindVertexArray(g_main_vao_state);
@@ -193,7 +215,7 @@ void sceneDraw()
 	glBindTexture(GL_TEXTURE_2D, g_texture);
 
 	// Tell tex_image sampler to read from texture unit 0
-	glUniform1i(gu_sampler, 0);
+	glUniform1i(g_main_u_tex_image, 0);
 
 	// Draw cube faces
 	char indices[] = { 0,  1,  2,  3,  2,  1,   // Front face

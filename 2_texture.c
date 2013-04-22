@@ -7,9 +7,10 @@ extern const char tex_data[];
 
 GLuint g_main_program;   // Shader program handle
 GLuint g_main_vao_state; // Attribute state handle
-GLuint g_texture;        // Texture handle
 
-GLint gu_sampler;        // Texture sampler handle
+GLint g_main_u_tex_image; // Texture sampler handle
+
+GLuint g_texture; // Texture handle
 
 // Initializes the scene
 // Called once at the start
@@ -19,6 +20,9 @@ bool sceneInit()
 	GLuint vertex_buf; // Vertex buffer handle
 
 	g_main_program = loadprogram(__FILE__);
+
+	// Get uniform locations
+	g_main_u_tex_image = glGetUniformLocation(g_main_program, "tex_image");
 
 	// Create buffer for vertex data
 	glGenBuffers(1, &vertex_buf);
@@ -98,9 +102,6 @@ bool sceneInit()
 	// Unbind texture from "mount point"
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Get shader's "tex_image" sampler uniform
-	gu_sampler = glGetUniformLocation(g_main_program, "tex_image");
-
 	return true;
 }
 
@@ -122,7 +123,7 @@ void sceneDraw()
 	glBindTexture(GL_TEXTURE_2D, g_texture);
 
 	// Tell tex_image sampler to read from texture unit 0
-	glUniform1i(gu_sampler, 0);
+	glUniform1i(g_main_u_tex_image, 0);
 
 	// Draw triangles
 	char indices[] = { 0, 1, 2,      // Upper left triangle
