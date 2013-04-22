@@ -259,7 +259,7 @@ void sceneDraw()
 	                   8,  9, 10, 11, 10,  9,   // Left face
 	                  12, 13, 14, 15, 14, 13,   // Right face
 	                  16, 17, 18, 19, 18, 17,   // Top face
-	                  12, 13, 22, 23, 22, 21 }; // Bottom face
+	                  20, 21, 22, 23, 22, 21 }; // Bottom face
 
 	glDrawElements(GL_TRIANGLES,     // Draw mode
 	               sizeof(indices),  // Number of elements
