@@ -81,6 +81,64 @@ bool sceneInit()
 		return false;
 	}
 
+	// Create buffer for vertex positions
+	GLuint position_buf;
+	glGenBuffers(1, &position_buf);
+
+	// Bind buffer to "mount point"
+	glBindBuffer(GL_ARRAY_BUFFER, position_buf);
+
+	// Upload position data to buffer
+	float position_data[] = {  0.0,  0.5,  0.0,   // v0
+	                          -0.5, -0.5,  0.0,   // v1
+	                           0.5, -0.5,  0.0 }; // v2
+	glBufferData(GL_ARRAY_BUFFER, // Where to write data
+	             sizeof(position_data)*sizeof(position_data[0]), // Size (bytes)
+	             position_data,   // Pointer to data
+	             GL_STATIC_DRAW); // How data will be used
+
+	// Associate shader's "vertex_position" attribute with this buffer
+	GLint position_attr = glGetAttribLocation(g_program, "vertex_position");
+	glVertexAttribPointer(position_attr, // Attribute
+	                      3,             // Vec3 (XYZ)
+	                      GL_FLOAT,      // Data type
+	                      GL_FALSE,      // Normalize?
+	                      0,             // Stride between vertices
+	                      0);            // Offset to first vertex
+	glEnableVertexAttribArray(position_attr);
+
+	// Unbind buffer from "mount point"
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Create buffer for vertex colors
+	GLuint color_buf;
+	glGenBuffers(1, &color_buf);
+
+	// Bind buffer to "mount point"
+	glBindBuffer(GL_ARRAY_BUFFER, color_buf);
+
+	// Upload position data to buffer
+	float color_data[] = {  1.0,  0.0,  0.0,   // v0
+	                        0.0,  1.0,  0.0,   // v1
+	                        0.0,  0.0,  1.0 }; // v2
+	glBufferData(GL_ARRAY_BUFFER, // Where to write data
+	             sizeof(color_data)*sizeof(color_data[0]), // Size (bytes)
+	             color_data,      // Pointer to data
+	             GL_STATIC_DRAW); // How data will be used
+
+	// Associate shader's "vertex_color" attribute with this buffer
+	GLint color_attr = glGetAttribLocation(g_program, "vertex_color");
+	glVertexAttribPointer(color_attr, // Attribute
+	                      3,          // Vec3 (RGB)
+	                      GL_FLOAT,   // Data type
+	                      GL_FALSE,   // Normalize?
+	                      0,          // Stride between vertices
+	                      0);         // Offset to first vertex
+	glEnableVertexAttribArray(color_attr);
+
+	// Unbind buffer from "mount point"
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	return true;
 }
 
