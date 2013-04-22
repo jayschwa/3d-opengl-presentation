@@ -12,7 +12,7 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 	// Use OpenGL 3.x
-	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 4);
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
 
 	// Do not use deprecated legacy functions
