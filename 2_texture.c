@@ -15,10 +15,12 @@ GLint gu_sampler;        // Texture sampler handle
 // Called once at the start
 bool sceneInit()
 {
+	GLint attribute;   // Vertex attribute handle
+	GLuint vertex_buf; // Vertex buffer handle
+
 	g_main_program = loadprogram(__FILE__);
 
 	// Create buffer for vertex data
-	GLuint vertex_buf;
 	glGenBuffers(1, &vertex_buf);
 
 	// Bind buffer to "mount point"
@@ -43,7 +45,7 @@ bool sceneInit()
 	glBindVertexArray(g_main_vao_state);
 
 	// Define layout of shader's "vertex_position" attribute
-	GLint attribute = glGetAttribLocation(g_main_program, "vertex_position");
+	attribute = glGetAttribLocation(g_main_program, "vertex_position");
 	glVertexAttribPointer(attribute,      // Attribute handle
 	                      3,              // Vec3 (XYZ)
 	                      GL_FLOAT,       // Data type
@@ -109,7 +111,7 @@ void sceneDraw()
 	// Clear screen
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Use program for drawing
+	// Use main program for drawing
 	glUseProgram(g_main_program);
 
 	// Restore state
