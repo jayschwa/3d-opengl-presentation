@@ -10,6 +10,7 @@ const char *title = "Hello Triangle";
 
 // Shader program handle
 GLuint g_program;
+GLuint g_vao_state;
 
 // Initializes the scene
 // Called once at the start
@@ -22,7 +23,10 @@ bool sceneInit()
 	// Upload vertex shader source code
 	GLchar *src = readfile(__FILE__ ".vert.glsl");
 	GLint len = strlen(src);
-	glShaderSource(vertex_shader, 1, &src, &len);
+	glShaderSource(vertex_shader, // Shader handle
+	               1,             // Number of source code strings
+	               &src,          // Array of source code strings
+	               &len);         // Array of lengths of strings
 	free(src);
 
 	// Upload fragment shader source code
@@ -37,11 +41,14 @@ bool sceneInit()
 
 	// Check shader compilation status
 	GLint vertex_shader_compiled, fragment_shader_compiled;
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS,
-		      &vertex_shader_compiled);
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS,
-		      &fragment_shader_compiled);
+	glGetShaderiv(vertex_shader,            // Shader handle
+	              GL_COMPILE_STATUS,        // Value to fetch
+	              &vertex_shader_compiled); // Variable to store value
+	glGetShaderiv(fragment_shader,
+	              GL_COMPILE_STATUS,
+	              &fragment_shader_compiled);
 	if (vertex_shader_compiled != GL_TRUE) {
+		// Print error log if compilation failed
 		GLint log_len;
 		glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &log_len);
 		GLchar *log = (GLchar *) malloc(log_len);
@@ -50,6 +57,7 @@ bool sceneInit()
 		free(log);
 		return false;
 	} else if (fragment_shader_compiled != GL_TRUE) {
+		// Print error log if compilation failed
 		GLint log_len;
 		glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &log_len);
 		GLchar *log = (GLchar *) malloc(log_len);
@@ -61,7 +69,7 @@ bool sceneInit()
 	// Create program object
 	g_program = glCreateProgram();
 
-	// Attach shader to program
+	// Attach shaders to program
 	glAttachShader(g_program, vertex_shader);
 	glAttachShader(g_program, fragment_shader);
 
@@ -70,8 +78,11 @@ bool sceneInit()
 
 	// Check program link status
 	GLint program_linked;
-	glGetProgramiv(g_program, GL_LINK_STATUS, &program_linked);
+	glGetProgramiv(g_program,        // Program handle
+	               GL_LINK_STATUS,   // Value to fetch
+	               &program_linked); // Variable to store value
 	if (program_linked != GL_TRUE) {
+		// Print error log if link process failed
 		GLint log_len;
 		glGetProgramiv(g_program, GL_INFO_LOG_LENGTH, &log_len);
 		GLchar *log = (GLchar *) malloc(log_len);
@@ -81,6 +92,12 @@ bool sceneInit()
 		return false;
 	}
 
+	// Create "vertex array" state object
+	glGenVertexArrays(1, &g_vao_state);
+
+	// Bind state object so it sees and retains the following state changes
+	glBindVertexArray(g_vao_state);
+
 	// Create buffer for vertex positions
 	GLuint position_buf;
 	glGenBuffers(1, &position_buf);
@@ -89,9 +106,9 @@ bool sceneInit()
 	glBindBuffer(GL_ARRAY_BUFFER, position_buf);
 
 	// Upload position data to buffer
-	float position_data[] = {  0.0,  0.5,  0.0,   // v0
-	                          -0.5, -0.5,  0.0,   // v1
-	                           0.5, -0.5,  0.0 }; // v2
+	float position_data[] = {  0.0,  0.8,  0.0,   // v0: top
+	                          -0.8, -0.8,  0.0,   // v1: lower left
+	                           0.8, -0.8,  0.0 }; // v2: lower right
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(position_data)*sizeof(position_data[0]), // Size (bytes)
 	             position_data,   // Pointer to data
@@ -99,13 +116,13 @@ bool sceneInit()
 
 	// Associate shader's "vertex_position" attribute with this buffer
 	GLint position_attr = glGetAttribLocation(g_program, "vertex_position");
-	glVertexAttribPointer(position_attr, // Attribute
+	glVertexAttribPointer(position_attr, // Attribute handle
 	                      3,             // Vec3 (XYZ)
 	                      GL_FLOAT,      // Data type
 	                      GL_FALSE,      // Normalize?
 	                      0,             // Stride between vertices
 	                      0);            // Offset to first vertex
-	glEnableVertexAttribArray(position_attr);
+	glEnableVertexAttribArray(position_attr); // Enable attribute
 
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -118,9 +135,9 @@ bool sceneInit()
 	glBindBuffer(GL_ARRAY_BUFFER, color_buf);
 
 	// Upload position data to buffer
-	float color_data[] = {  1.0,  0.0,  0.0,   // v0
-	                        0.0,  1.0,  0.0,   // v1
-	                        0.0,  0.0,  1.0 }; // v2
+	float color_data[] = {  1.0,  0.0,  0.0,   // v0: red
+	                        0.0,  1.0,  0.0,   // v1: green
+	                        0.0,  0.0,  1.0 }; // v2: blue
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(color_data)*sizeof(color_data[0]), // Size (bytes)
 	             color_data,      // Pointer to data
@@ -128,16 +145,19 @@ bool sceneInit()
 
 	// Associate shader's "vertex_color" attribute with this buffer
 	GLint color_attr = glGetAttribLocation(g_program, "vertex_color");
-	glVertexAttribPointer(color_attr, // Attribute
+	glVertexAttribPointer(color_attr, // Attribute handle
 	                      3,          // Vec3 (RGB)
 	                      GL_FLOAT,   // Data type
 	                      GL_FALSE,   // Normalize?
 	                      0,          // Stride between vertices
 	                      0);         // Offset to first vertex
-	glEnableVertexAttribArray(color_attr);
+	glEnableVertexAttribArray(color_attr); // Enable attribute
 
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Unbind state object
+	glBindVertexArray(0);
 
 	return true;
 }
@@ -146,4 +166,22 @@ bool sceneInit()
 // Called every frame
 void sceneDraw()
 {
+	// Clear screen
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Use program for drawing
+	glUseProgram(g_program);
+
+	// Restore state
+	glBindVertexArray(g_vao_state);
+
+	// Draw triangle
+	char indices[] = { 0, 1, 2 };    // Index of vertices
+	glDrawElements(GL_TRIANGLES,     // Draw mode
+	               sizeof(indices),  // Number of elements
+	               GL_UNSIGNED_BYTE, // Element data type
+	               indices);         // Pointer to elements
+
+	// Clear state
+	glBindVertexArray(0);
 }
