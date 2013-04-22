@@ -106,9 +106,10 @@ bool sceneInit()
 	glBindBuffer(GL_ARRAY_BUFFER, position_buf);
 
 	// Upload position data to buffer
-	float position_data[] = {  0.0,  0.8,  0.0,   // v0: top
-	                          -0.8, -0.8,  0.0,   // v1: lower left
-	                           0.8, -0.8,  0.0 }; // v2: lower right
+	float position_data[] = { -0.8, -0.8,  0.0,   // v0: lower left
+	                          -0.8,  0.8,  0.0,   // v1: upper left
+	                           0.8, -0.8,  0.0,   // v2: lower right
+	                           0.8,  0.8,  0.0 }; // v3: upper right
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(position_data)*sizeof(position_data[0]), // Size (bytes)
 	             position_data,   // Pointer to data
@@ -127,31 +128,32 @@ bool sceneInit()
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// Create buffer for vertex colors
-	GLuint color_buf;
-	glGenBuffers(1, &color_buf);
+	// Create buffer for vertex texture coordinates
+	GLuint tex_coord_buf;
+	glGenBuffers(1, &tex_coord_buf);
 
 	// Bind buffer to "mount point"
-	glBindBuffer(GL_ARRAY_BUFFER, color_buf);
+	glBindBuffer(GL_ARRAY_BUFFER, tex_coord_buf);
 
 	// Upload position data to buffer
-	float color_data[] = {  1.0,  0.0,  0.0,   // v0: red
-	                        0.0,  1.0,  0.0,   // v1: green
-	                        0.0,  0.0,  1.0 }; // v2: blue
+	float tex_coord_data[] = {  0.0,  0.0,   // v0: lower left
+	                            0.0,  1.0,   // v1: upper left
+	                            1.0,  0.0,   // v2: lower right
+	                            1.0,  1.0 }; // v3: upper right
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
-	             sizeof(color_data)*sizeof(color_data[0]), // Size (bytes)
-	             color_data,      // Pointer to data
+	             sizeof(tex_coord_data)*sizeof(tex_coord_data[0]), // Size (bytes)
+	             tex_coord_data,  // Pointer to data
 	             GL_STATIC_DRAW); // How data will be used
 
 	// Associate shader's "vertex_color" attribute with this buffer
-	GLint color_attr = glGetAttribLocation(g_program, "vertex_color");
-	glVertexAttribPointer(color_attr,      // Attribute handle
-	                      3,               // Vec2 (RGB)
+	GLint tex_coord_attr = glGetAttribLocation(g_program, "vertex_tex_coords");
+	glVertexAttribPointer(tex_coord_attr,  // Attribute handle
+	                      2,               // Vec2 (UV)
 	                      GL_FLOAT,        // Data type
 	                      GL_FALSE,        // Normalize?
 	                      0,               // Stride between vertices
 	                      0);              // Offset to first vertex
-	glEnableVertexAttribArray(color_attr); // Enable attribute
+	glEnableVertexAttribArray(tex_coord_attr); // Enable attribute
 
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -176,7 +178,8 @@ void sceneDraw()
 	glBindVertexArray(g_vao_state);
 
 	// Draw triangle
-	char indices[] = { 0, 1, 2 };    // Index of vertices
+	char indices[] = { 1, 0, 2,      // Bottom left triangle
+	                   2, 3, 1 };    // Upper right triangle
 	glDrawElements(GL_TRIANGLES,     // Draw mode
 	               sizeof(indices),  // Number of elements
 	               GL_UNSIGNED_BYTE, // Element data type

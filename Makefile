@@ -1,6 +1,7 @@
 BINS = \
     0_empty_window.bin \
-    1_triangle.bin
+    1_triangle.bin \
+    2_texture.bin
 
 all: $(BINS)
 
