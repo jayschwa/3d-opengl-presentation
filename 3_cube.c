@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <GL/gl.h>
+#include <GL/glfw.h>
 
 const char *title = "3D Space";
 
@@ -11,7 +12,27 @@ const float identity[] = {
 	0.0, 0.0, 1.0, 0.0,
 	0.0, 0.0, 0.0, 1.0
 };
+
 float g_view_position[] = { 1.0,  1.0,  1.0 };
+float g_cube_direction[3];
+
+void mouseClick(int key, int pressed) {
+	static int x, y;
+	if (pressed == 1) {
+		glfwGetMousePos(&x, &y);
+		glfwDisable(GLFW_MOUSE_CURSOR);
+		glfwSetMousePos(0, 0);
+	} else {
+		glfwEnable(GLFW_MOUSE_CURSOR);
+		glfwSetMousePos(x, y);
+	}
+}
+void mouseMove(int x, int y)
+{
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == 1) {
+		printf("%i, %i\n", x, y);
+	}
+}
 
 GLuint g_axis_program;
 GLuint g_axis_vao_state;
@@ -29,6 +50,9 @@ GLuint g_texture; // Texture handle
 // Called once at the start
 bool sceneInit()
 {
+	glfwSetMousePosCallback(mouseMove);
+	glfwSetMouseButtonCallback(mouseClick);
+
 	glEnable(GL_CULL_FACE);  // Don't draw back side of triangles
 	glEnable(GL_DEPTH_TEST); // Don't draw triangles behind other triangles
 
