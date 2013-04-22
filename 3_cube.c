@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <math.h>
 #include <GL/gl.h>
 #include <GL/glfw.h>
 
@@ -12,8 +13,9 @@ const float identity[] = {
 	0.0, 0.0, 1.0, 0.0,
 	0.0, 0.0, 0.0, 1.0
 };
-
-float g_view_position[] = { 1.0,  1.0,  1.0 };
+float g_view_pitch = 0;
+float g_view_yaw = 0;
+float g_view_position[] = { 1,  0,  0 };
 float g_cube_direction[3];
 
 void mouseClick(int key, int pressed) {
@@ -29,8 +31,18 @@ void mouseClick(int key, int pressed) {
 }
 void mouseMove(int x, int y)
 {
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == 1) {
-		printf("%i, %i\n", x, y);
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == 1) {
+		g_view_pitch += (float)y / 300;
+		if (g_view_pitch <= -M_PI_2) {
+			g_view_pitch = -M_PI_2 + 0.01 * M_PI_2;
+		} else if (g_view_pitch >= M_PI_2) {
+			g_view_pitch = M_PI_2 - 0.01 * M_PI_2;
+		}
+		g_view_yaw += (float)x / 300;
+		g_view_position[0] = cosf(g_view_yaw) * cosf(g_view_pitch);
+		g_view_position[1] = sinf(g_view_pitch);
+		g_view_position[2] = sinf(g_view_yaw) * cosf(g_view_pitch);
+		glfwSetMousePos(0, 0);
 	}
 }
 
