@@ -98,11 +98,11 @@ bool sceneInit()
 	glBindVertexArray(g_vao_state);
 
 	// Create buffer for vertex positions
-	GLuint position_buf;
-	glGenBuffers(1, &position_buf);
+	GLuint vertex_buf;
+	glGenBuffers(1, &vertex_buf);
 
 	// Bind buffer to "mount point"
-	glBindBuffer(GL_ARRAY_BUFFER, position_buf);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 
 	// Upload position data to buffer
 	float position_data[] = {  0.0,  0.8,  0.0,   // v0: top
@@ -114,24 +114,23 @@ bool sceneInit()
 	             GL_STATIC_DRAW); // How data will be used
 
 	// Associate shader's "vertex_position" attribute with this buffer
-	GLint position_attr = glGetAttribLocation(g_program, "vertex_position");
-	glVertexAttribPointer(position_attr, // Attribute handle
-	                      3,             // Vec3 (XYZ)
-	                      GL_FLOAT,      // Data type
-	                      GL_FALSE,      // Normalize?
-	                      0,             // Stride between vertices
-	                      0);            // Offset to first vertex
-	glEnableVertexAttribArray(position_attr); // Enable attribute
+	GLint attribute = glGetAttribLocation(g_program, "vertex_position");
+	glVertexAttribPointer(attribute,      // Attribute handle
+	                      3,              // Vec3 (XYZ)
+	                      GL_FLOAT,       // Data type
+	                      GL_FALSE,       // Normalize?
+	                      0,              // Stride between vertices
+	                      0);             // Offset to first vertex
+	glEnableVertexAttribArray(attribute); // Enable attribute
 
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// Create buffer for vertex colors
-	GLuint color_buf;
-	glGenBuffers(1, &color_buf);
+	// Create new buffer for vertex colors
+	glGenBuffers(1, &vertex_buf);
 
 	// Bind buffer to "mount point"
-	glBindBuffer(GL_ARRAY_BUFFER, color_buf);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 
 	// Upload position data to buffer
 	float color_data[] = {  1.0,  0.0,  0.0,   // v0: red
@@ -143,14 +142,14 @@ bool sceneInit()
 	             GL_STATIC_DRAW); // How data will be used
 
 	// Associate shader's "vertex_color" attribute with this buffer
-	GLint color_attr = glGetAttribLocation(g_program, "vertex_color");
-	glVertexAttribPointer(color_attr,      // Attribute handle
+	attribute = glGetAttribLocation(g_program, "vertex_color");
+	glVertexAttribPointer(attribute,       // Attribute handle
 	                      3,               // Vec2 (RGB)
 	                      GL_FLOAT,        // Data type
 	                      GL_FALSE,        // Normalize?
 	                      0,               // Stride between vertices
 	                      0);              // Offset to first vertex
-	glEnableVertexAttribArray(color_attr); // Enable attribute
+	glEnableVertexAttribArray(attribute);  // Enable attribute
 
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
