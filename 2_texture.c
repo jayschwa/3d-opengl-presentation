@@ -96,73 +96,57 @@ bool sceneInit()
 		return false;
 	}
 
-	// Create "vertex array" state object
-	glGenVertexArrays(1, &g_vao_state);
 
-	// Bind state object so it sees and retains the following state changes
-	glBindVertexArray(g_vao_state);
-
-	// Create buffer for vertex positions
+	// Create buffer for vertex data
 	GLuint vertex_buf;
 	glGenBuffers(1, &vertex_buf);
 
 	// Bind buffer to "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 
-	// Upload position data to buffer
-	float position_data[] = { -0.8,  0.8,  0.0,   // v0: upper left
-	                          -0.8, -0.8,  0.0,   // v1: lower left
-	                           0.8,  0.8,  0.0,   // v2: upper right
-	                           0.8, -0.8,  0.0 }; // v3: lower right
+	// Upload vertex data to buffer
+	float vertex_data[] = {
+		// X     Y     Z     U     V
+		-0.8,  0.8,  0.0,  0.0,  0.0,   // v0: upper left
+		-0.8, -0.8,  0.0,  0.0,  1.0,   // v1: lower left
+		 0.8,  0.8,  0.0,  1.0,  0.0,   // v2: upper right
+		 0.8, -0.8,  0.0,  1.0,  1.0 }; // v3: lower right
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
-	             sizeof(position_data)*sizeof(position_data[0]), // Size (bytes)
-	             position_data,   // Pointer to data
+	             sizeof(vertex_data) * sizeof(vertex_data[0]), // Size (bytes)
+	             vertex_data,     // Pointer to data
 	             GL_STATIC_DRAW); // How data will be used
 
-	// Associate shader's "vertex_position" attribute with this buffer
+	// Create "vertex array" state object
+	glGenVertexArrays(1, &g_vao_state);
+
+	// Bind state object so it sees and retains the following attribute state
+	glBindVertexArray(g_vao_state);
+
+	// Define layout of shader's "vertex_position" attribute
 	GLint attribute = glGetAttribLocation(g_program, "vertex_position");
 	glVertexAttribPointer(attribute,      // Attribute handle
 	                      3,              // Vec3 (XYZ)
 	                      GL_FLOAT,       // Data type
 	                      GL_FALSE,       // Normalize?
-	                      0,              // Stride between vertices
-	                      0);             // Offset to first vertex
+	                      20,             // Stride between positions
+	                      0);             // Offset to first position
 	glEnableVertexAttribArray(attribute); // Enable attribute
 
-	// Unbind buffer from "mount point"
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Create new buffer for vertex texture coordinates
-	glGenBuffers(1, &vertex_buf);
-
-	// Bind buffer to "mount point"
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-
-	// Upload position data to buffer
-	float tex_coord_data[] = {  0.0,  0.0,   // v0: upper left
-	                            0.0,  1.0,   // v1: lower left
-	                            1.0,  0.0,   // v2: upper right
-	                            1.0,  1.0 }; // v3: lower right
-	glBufferData(GL_ARRAY_BUFFER, // Where to write data
-	             sizeof(tex_coord_data)*sizeof(tex_coord_data[0]), // Size (bytes)
-	             tex_coord_data,  // Pointer to data
-	             GL_STATIC_DRAW); // How data will be used
-
-	// Associate shader's "vertex_color" attribute with this buffer
+	// Define layout of shader's "vertex_tex_coords" attribute
 	attribute = glGetAttribLocation(g_program, "vertex_tex_coords");
-	glVertexAttribPointer(attribute,       // Attribute handle
-	                      2,               // Vec2 (UV)
-	                      GL_FLOAT,        // Data type
-	                      GL_FALSE,        // Normalize?
-	                      0,               // Stride between vertices
-	                      0);              // Offset to first vertex
-	glEnableVertexAttribArray(attribute);  // Enable attribute
-
-	// Unbind buffer from "mount point"
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttribPointer(attribute,      // Attribute handle
+	                      2,              // Vec2 (UV)
+	                      GL_FLOAT,       // Data type
+	                      GL_FALSE,       // Normalize?
+	                      20,             // Stride between tex coords
+	                      12);            // Offset to first tex coord
+	glEnableVertexAttribArray(attribute); // Enable attribute
 
 	// Unbind state object
 	glBindVertexArray(0);
+
+	// Unbind buffer from "mount point"
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Create texture object
 	glGenTextures(1, &g_texture);
