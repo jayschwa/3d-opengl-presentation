@@ -8,9 +8,13 @@
 
 const char *title = "Hello Triangle";
 
-// Shader program handle
-GLuint g_program;
-GLuint g_vao_state;
+extern const char tex_data[];
+
+GLuint g_program;   // Shader program handle
+GLuint g_vao_state; // Attribute state handle
+GLuint g_texture;   // Texture handle
+
+GLint gu_sampler;   // Texture sampler handle
 
 // Initializes the scene
 // Called once at the start
@@ -106,10 +110,10 @@ bool sceneInit()
 	glBindBuffer(GL_ARRAY_BUFFER, position_buf);
 
 	// Upload position data to buffer
-	float position_data[] = { -0.8, -0.8,  0.0,   // v0: lower left
-	                          -0.8,  0.8,  0.0,   // v1: upper left
-	                           0.8, -0.8,  0.0,   // v2: lower right
-	                           0.8,  0.8,  0.0 }; // v3: upper right
+	float position_data[] = { -0.8,  0.8,  0.0,   // v0: upper left
+	                          -0.8, -0.8,  0.0,   // v1: lower left
+	                           0.8,  0.8,  0.0,   // v2: upper right
+	                           0.8, -0.8,  0.0 }; // v3: lower right
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(position_data)*sizeof(position_data[0]), // Size (bytes)
 	             position_data,   // Pointer to data
@@ -136,10 +140,10 @@ bool sceneInit()
 	glBindBuffer(GL_ARRAY_BUFFER, tex_coord_buf);
 
 	// Upload position data to buffer
-	float tex_coord_data[] = {  0.0,  0.0,   // v0: lower left
-	                            0.0,  1.0,   // v1: upper left
-	                            1.0,  0.0,   // v2: lower right
-	                            1.0,  1.0 }; // v3: upper right
+	float tex_coord_data[] = {  0.0,  0.0,   // v0: upper left
+	                            0.0,  1.0,   // v1: lower left
+	                            1.0,  0.0,   // v2: upper right
+	                            1.0,  1.0 }; // v3: lower right
 	glBufferData(GL_ARRAY_BUFFER, // Where to write data
 	             sizeof(tex_coord_data)*sizeof(tex_coord_data[0]), // Size (bytes)
 	             tex_coord_data,  // Pointer to data
@@ -161,6 +165,37 @@ bool sceneInit()
 	// Unbind state object
 	glBindVertexArray(0);
 
+	// Create texture object
+	glGenTextures(1, &g_texture);
+
+	// Bind texture to "mount point"
+	glBindTexture(GL_TEXTURE_2D, g_texture);
+
+	// Upload pixel data to texture
+	glTexImage2D(GL_TEXTURE_2D,    // Where to write data
+	             0,                // Level of detail
+	             GL_RGBA,          // Internal format
+	             140,              // Width
+	             140,              // Height
+	             0,
+	             GL_RGBA,          // Format
+	             GL_UNSIGNED_BYTE, // Pixel component data type
+	             tex_data);        // Pointer to pixel data
+
+	// Texture distance filters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Texture wrapping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// Unbind texture from "mount point"
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Get shader's "tex_image" sampler uniform
+	gu_sampler = glGetUniformLocation(g_program, "tex_image");
+
 	return true;
 }
 
@@ -177,13 +212,23 @@ void sceneDraw()
 	// Restore state
 	glBindVertexArray(g_vao_state);
 
+	// Bind texture to "mount point" on texture unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_texture);
+
+	// Tell tex_image sampler to read from texture unit 0
+	glUniform1i(gu_sampler, 0);
+
 	// Draw triangle
-	char indices[] = { 1, 0, 2,      // Bottom left triangle
-	                   2, 3, 1 };    // Upper right triangle
+	char indices[] = { 0, 1, 2,      // Upper left triangle
+	                   3, 2, 1 };    // Lower right triangle
 	glDrawElements(GL_TRIANGLES,     // Draw mode
 	               sizeof(indices),  // Number of elements
 	               GL_UNSIGNED_BYTE, // Element data type
 	               indices);         // Pointer to elements
+
+	// Unbind texture from "mount point"
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Clear state
 	glBindVertexArray(0);

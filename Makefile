@@ -3,9 +3,14 @@ BINS = \
     1_triangle.bin \
     2_texture.bin
 
+SHARED_OBJS = \
+    shared_main.o \
+    shared_tex.o \
+    shared_utils.o
+
 all: $(BINS)
 
-%.bin: %.o shared_main.o shared_utils.o
+%.bin: %.o $(SHARED_OBJS)
 	$(CC) -o $@ $^ -lGL -lglfw
 
 clean:

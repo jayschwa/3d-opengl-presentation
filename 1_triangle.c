@@ -8,9 +8,8 @@
 
 const char *title = "Hello Triangle";
 
-// Shader program handle
-GLuint g_program;
-GLuint g_vao_state;
+GLuint g_program;   // Shader program handle
+GLuint g_vao_state; // Attribute state handle
 
 // Initializes the scene
 // Called once at the start
