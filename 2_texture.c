@@ -6,7 +6,7 @@
 
 #include "shared_utils.h"
 
-const char *title = "Hello Triangle";
+const char *title = "Textured Square";
 
 extern const char tex_data[];
 
@@ -202,7 +202,7 @@ void sceneDraw()
 	// Tell tex_image sampler to read from texture unit 0
 	glUniform1i(gu_sampler, 0);
 
-	// Draw triangle
+	// Draw triangles
 	char indices[] = { 0, 1, 2,      // Upper left triangle
 	                   3, 2, 1 };    // Lower right triangle
 	glDrawElements(GL_TRIANGLES,     // Draw mode
