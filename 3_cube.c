@@ -15,8 +15,11 @@ const float identity[] = {
 };
 float g_view_pitch = 0;
 float g_view_yaw = 0;
-float g_view_position[] = { 1,  0,  0 };
-float g_cube_direction[3];
+float g_view_position[3] = { 1, 0, 0 };
+
+float g_cube_pitch = 0;
+float g_cube_yaw = 0;
+float g_cube_direction[3] = { 1, 0, 0 };
 
 void mouseClick(int key, int pressed) {
 	static int x, y;
@@ -31,6 +34,19 @@ void mouseClick(int key, int pressed) {
 }
 void mouseMove(int x, int y)
 {
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == 1) {
+		g_cube_pitch += (float)y / 300;
+		if (g_cube_pitch <= -M_PI_2) {
+			g_cube_pitch = -M_PI_2 + 0.01 * M_PI_2;
+		} else if (g_cube_pitch >= M_PI_2) {
+			g_cube_pitch = M_PI_2 - 0.01 * M_PI_2;
+		}
+		g_cube_yaw += (float)x / 300;
+		g_cube_direction[0] = cosf(g_view_yaw) * cosf(g_view_pitch);
+		g_cube_direction[1] = sinf(g_view_pitch);
+		g_cube_direction[2] = sinf(g_view_yaw) * cosf(g_view_pitch);
+		glfwSetMousePos(0, 0);
+	}
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == 1) {
 		g_view_pitch += (float)y / 300;
 		if (g_view_pitch <= -M_PI_2) {
