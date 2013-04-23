@@ -1,9 +1,14 @@
 #version 150
 
+uniform vec3 model_position;
+uniform vec3 model_direction;
+
 uniform vec3 view_position;
+uniform vec3 view_direction;
 
 in vec3 vertex_position;
 
+out vec3 fragment_position;
 flat out vec3 fragment_color;
 
 mat4 rotmat(in vec3 dir)
@@ -22,5 +27,6 @@ void main()
 {
 	mat4 view_matrix = rotmat(-view_position);
 	gl_Position = view_matrix * vec4(vertex_position, 1.0);
+	fragment_position = vertex_position;
 	fragment_color = vertex_position;
 }
