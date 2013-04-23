@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <math.h>
-#include <GL/gl.h>
 #include <GL/glfw.h>
+#include "gl.h"
 
 const char *title = "3D Space";
 

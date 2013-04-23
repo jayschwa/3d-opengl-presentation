@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include <GL/gl.h>
+#include "gl.h"
 
 const char *title = "Textured Square";
 

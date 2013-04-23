@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <GL/gl.h>
+#include "gl.h"
 
 // Read file and return contents in buffer
 char *readfile(const char *name)

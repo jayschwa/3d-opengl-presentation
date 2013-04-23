@@ -9,10 +9,19 @@ SHARED_OBJS = \
     shared_tex.o \
     shared_utils.o
 
+LIBS = -lglfw
+
+OS := $(shell uname -s)
+ifeq ($(OS),Darwin)
+	LIBS += -framework OpenGL
+else
+	LIBS += -lGL
+endif
+
 all: $(BINS)
 
 %.bin: %.o $(SHARED_OBJS)
-	$(CC) -o $@ $^ -lGL -lglfw
+	$(CC) -o $@ $^ $(LIBS)
 
 clean:
 	rm -rf *.bin *.o
