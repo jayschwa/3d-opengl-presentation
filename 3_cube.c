@@ -66,12 +66,17 @@ void mouseMove(int x, int y)
 	}
 }
 
-GLuint g_axis_program;
-GLuint g_axis_vao_state;
+GLuint g_axis_program;     // Shader program handle
+GLuint g_axis_indices_buf; // Vertex indices handle
+GLuint g_axis_indices_len; // Number of vertex indices
+GLuint g_axis_vao_state;   // Attribute state handle
+
 GLint  g_axis_u_view_position;
 
-GLuint g_main_program;   // Shader program handle
-GLuint g_main_vao_state; // Attribute state handle
+GLuint g_main_program;     // Shader program handle
+GLuint g_main_indices_buf; // Vertex indices handle
+GLuint g_main_indices_len; // Number of vertex indices
+GLuint g_main_vao_state;   // Attribute state handle
 
 GLint g_main_u_view_position; // View position handle
 GLint g_main_u_tex_image;     // Texture sampler handle
@@ -125,6 +130,15 @@ bool sceneInit()
 	glEnableVertexAttribArray(attribute); // Enable attribute
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glGenBuffers(1, &g_axis_indices_buf);
+	char axis_index_data[] = { 0, 1, 0, 2, 0, 3 };
+	g_axis_indices_len = sizeof(axis_index_data);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_axis_indices_buf);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, // Where to write data
+	             g_axis_indices_len,      // Size (bytes)
+	             axis_index_data,         // Pointer to data
+	             GL_STATIC_DRAW);         // How data will be used
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 /** Cube **********************************************************************/
 
@@ -211,6 +225,22 @@ bool sceneInit()
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Create buffer for index (to vertex) data
+	glGenBuffers(1, &g_main_indices_buf);
+	char main_index_data[] = { 0,  1,  2,  3,  2,  1,   // Front face
+	                           4,  5,  6,  7,  6,  5,   // Back face
+	                           8,  9, 10, 11, 10,  9,   // Left face
+	                          12, 13, 14, 15, 14, 13,   // Right face
+	                          16, 17, 18, 19, 18, 17,   // Top face
+	                          20, 21, 22, 23, 22, 21 }; // Bottom face
+	g_main_indices_len = sizeof(main_index_data);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, // Where to write data
+	             g_main_indices_len,      // Size (bytes)
+	             main_index_data,         // Pointer to data
+	             GL_STATIC_DRAW);         // How data will be used
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	// Create texture object
 	glGenTextures(1, &g_texture);
 
@@ -249,12 +279,13 @@ void sceneDraw()
 	// Clear screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Draw axes
+	// Draw world space axes
 	glUseProgram(g_axis_program);
 	glUniform3fv(g_axis_u_view_position, 1, g_view_position);
 	glBindVertexArray(g_axis_vao_state);
-	char axes[] = { 0, 1, 0, 2, 0, 3 };
-	glDrawElements(GL_LINES, sizeof(axes), GL_UNSIGNED_BYTE, axes);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_axis_indices_buf);
+	glDrawElements(GL_LINES, g_axis_indices_len, GL_UNSIGNED_BYTE, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	// Use main program for drawing
@@ -263,7 +294,7 @@ void sceneDraw()
 	// Write to uniforms
 	glUniform3fv(g_main_u_view_position, 1, g_view_position);
 
-	// Restore state
+	// Restore attribute state
 	glBindVertexArray(g_main_vao_state);
 
 	// Bind texture to "mount point" on texture unit 0
@@ -273,22 +304,21 @@ void sceneDraw()
 	// Tell tex_image sampler to read from texture unit 0
 	glUniform1i(g_main_u_tex_image, 0);
 
-	// Draw cube faces
-	char indices[] = { 0,  1,  2,  3,  2,  1,   // Front face
-	                   4,  5,  6,  7,  6,  5,   // Back face
-	                   8,  9, 10, 11, 10,  9,   // Left face
-	                  12, 13, 14, 15, 14, 13,   // Right face
-	                  16, 17, 18, 19, 18, 17,   // Top face
-	                  20, 21, 22, 23, 22, 21 }; // Bottom face
+	// Bind vertex indices buffer to "mount point"
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
 
-	glDrawElements(GL_TRIANGLES,     // Draw mode
-	               sizeof(indices),  // Number of elements
-	               GL_UNSIGNED_BYTE, // Element data type
-	               indices);         // Pointer to elements
+	// Draw triangles from GL_ELEMENT_ARRAY_BUFFER data
+	glDrawElements(GL_TRIANGLES,       // Draw mode
+	               g_main_indices_len, // Number of elements
+	               GL_UNSIGNED_BYTE,   // Element data type
+	               0);                 // Offset to first index
+
+	// Unbind vertex indices buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// Unbind texture from "mount point"
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Clear state
+	// Clear attribute state
 	glBindVertexArray(0);
 }
