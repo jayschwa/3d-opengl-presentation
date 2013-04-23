@@ -10,10 +10,12 @@ const char *title = "Textured Square";
 
 extern const char tex_data[];
 
-GLuint g_main_program;   // Shader program handle
-GLuint g_main_vao_state; // Attribute state handle
+GLuint g_main_program;     // Shader program handle
+GLuint g_main_indices_buf; // Vertex indices handle
+GLuint g_main_indices_len; // Number of vertex indices
+GLuint g_main_vao_state;   // Attribute state handle
 
-GLint g_main_u_tex_image; // Texture sampler handle
+GLint g_main_u_tex_image;  // Texture sampler handle
 
 GLuint g_texture; // Texture handle
 
@@ -79,6 +81,18 @@ bool sceneInit()
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Create buffer for index (to vertex) data
+	glGenBuffers(1, &g_main_indices_buf);
+	char main_index_data[] = { 0, 1, 2,   // Upper left triangle
+	                           3, 2, 1 }; // Lower right triangle
+	g_main_indices_len = sizeof(main_index_data);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, // Where to write data
+	             g_main_indices_len,      // Size (bytes)
+	             main_index_data,         // Pointer to data
+	             GL_STATIC_DRAW);         // How data will be used
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	// Create texture object
 	glGenTextures(1, &g_texture);
 
@@ -120,7 +134,7 @@ void sceneDraw()
 	// Use main program for drawing
 	glUseProgram(g_main_program);
 
-	// Restore state
+	// Restore attribute state
 	glBindVertexArray(g_main_vao_state);
 
 	// Bind texture to "mount point" on texture unit 0
@@ -130,17 +144,21 @@ void sceneDraw()
 	// Tell tex_image sampler to read from texture unit 0
 	glUniform1i(g_main_u_tex_image, 0);
 
-	// Draw triangles
-	char indices[] = { 0, 1, 2,      // Upper left triangle
-	                   3, 2, 1 };    // Lower right triangle
-	glDrawElements(GL_TRIANGLES,     // Draw mode
-	               sizeof(indices),  // Number of elements
-	               GL_UNSIGNED_BYTE, // Element data type
-	               indices);         // Pointer to elements
+	// Bind vertex indices buffer to "mount point"
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
+
+	// Draw triangles from GL_ELEMENT_ARRAY_BUFFER data
+	glDrawElements(GL_TRIANGLES,       // Draw mode
+	               g_main_indices_len, // Number of elements
+	               GL_UNSIGNED_BYTE,   // Element data type
+	               0);                 // Offset to first index
+
+	// Unbind vertex indices buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// Unbind texture from "mount point"
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Clear state
+	// Clear attribute state
 	glBindVertexArray(0);
 }

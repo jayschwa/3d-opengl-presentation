@@ -107,7 +107,7 @@ void sceneDraw()
 	               GL_UNSIGNED_BYTE,   // Element data type
 	               0);                 // Offset to first index
 
-	// Unmount vertex indices buffer
+	// Unbind vertex indices buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// Clear attribute state
