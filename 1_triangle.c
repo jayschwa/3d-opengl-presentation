@@ -50,7 +50,7 @@ bool sceneInit()
 	                      GL_FLOAT,       // Data type
 	                      GL_FALSE,       // Normalize?
 	                      24,             // Stride between positions
-	                      0);             // Offset to first position
+	                      (GLvoid *)0);   // Offset to first position
 	glEnableVertexAttribArray(attribute); // Enable attribute
 
 	// Define layout of shader's "vertex_color" attribute
@@ -60,7 +60,7 @@ bool sceneInit()
 	                      GL_FLOAT,       // Data type
 	                      GL_FALSE,       // Normalize?
 	                      24,             // Stride between colors
-	                      12);            // Offset to first color
+	                      (GLvoid *)12);  // Offset to first color
 	glEnableVertexAttribArray(attribute); // Enable attribute
 
 	// Unbind state object

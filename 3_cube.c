@@ -121,7 +121,7 @@ bool sceneInit()
 	                      GL_FLOAT,       // Data type
 	                      GL_FALSE,       // Normalize?
 	                      0,              // Stride between positions
-	                      0);             // Offset to first position
+	                      (GLvoid *)0);   // Offset to first position
 	glEnableVertexAttribArray(attribute); // Enable attribute
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -192,7 +192,7 @@ bool sceneInit()
 	                      GL_FLOAT,       // Data type
 	                      GL_FALSE,       // Normalize?
 	                      20,             // Stride between positions
-	                      0);             // Offset to first position
+	                      (GLvoid *)0);   // Offset to first position
 	glEnableVertexAttribArray(attribute); // Enable attribute
 
 	// Define layout of shader's "vertex_tex_coords" attribute
@@ -202,7 +202,7 @@ bool sceneInit()
 	                      GL_FLOAT,       // Data type
 	                      GL_FALSE,       // Normalize?
 	                      20,             // Stride between tex coords
-	                      12);            // Offset to first tex coord
+	                      (GLvoid *)12);  // Offset to first tex coord
 	glEnableVertexAttribArray(attribute); // Enable attribute
 
 	// Unbind state object
