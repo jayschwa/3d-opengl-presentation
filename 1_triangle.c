@@ -8,8 +8,10 @@
 
 const char *title = "Hello Triangle";
 
-GLuint g_main_program;   // Shader program handle
-GLuint g_main_vao_state; // Attribute state handle
+GLuint g_main_program;     // Shader program handle
+GLuint g_main_indices_buf; // Vertex indices handle
+GLuint g_main_indices_len; // Number of vertex indices
+GLuint g_main_vao_state;   // Attribute state handle
 
 // Initializes the scene
 // Called once at the start
@@ -69,6 +71,17 @@ bool sceneInit()
 	// Unbind buffer from "mount point"
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Create buffer for index (to vertex) data
+	glGenBuffers(1, &g_main_indices_buf);
+	char main_index_data[] = { 0, 1, 2 }; // Vertex indices
+	g_main_indices_len = sizeof(main_index_data);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, // Where to write data
+	             g_main_indices_len,      // Size (bytes)
+	             main_index_data,         // Pointer to data
+	             GL_STATIC_DRAW);         // How data will be used
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	return true;
 }
 
@@ -82,16 +95,21 @@ void sceneDraw()
 	// Use main program for drawing
 	glUseProgram(g_main_program);
 
-	// Restore state
+	// Restore attribute state
 	glBindVertexArray(g_main_vao_state);
 
-	// Draw triangle
-	char indices[] = { 0, 1, 2 };    // Index of vertices
-	glDrawElements(GL_TRIANGLES,     // Draw mode
-	               sizeof(indices),  // Number of elements
-	               GL_UNSIGNED_BYTE, // Element data type
-	               indices);         // Pointer to elements
+	// Bind vertex indices buffer to "mount point"
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
 
-	// Clear state
+	// Draw triangles from GL_ELEMENT_ARRAY_BUFFER data
+	glDrawElements(GL_TRIANGLES,       // Draw mode
+	               g_main_indices_len, // Number of elements
+	               GL_UNSIGNED_BYTE,   // Element data type
+	               0);                 // Offset to first index
+
+	// Unmount vertex indices buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// Clear attribute state
 	glBindVertexArray(0);
 }
