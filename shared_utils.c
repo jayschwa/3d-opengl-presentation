@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "gl.h"
+
+#define GLFW_INCLUDE_GL3
+#define GLFW_NO_GLU
+#include <GL/glfw.h>
 
 // Read file and return contents in buffer
 char *readfile(const char *name)
@@ -25,10 +28,10 @@ GLuint loadshader(GLenum type, const char *file)
 	// Upload vertex shader source code
 	GLchar *src = readfile(file);
 	GLint len = strlen(src);
-	glShaderSource(shader, // Shader handle
-	               1,      // Number of source code strings
-	               &src,   // Array of source code strings
-	               &len);  // Array of lengths of strings
+	glShaderSource(shader,               // Shader handle
+	               1,                    // Number of source code strings
+	               (const GLchar**)&src, // Array of source code strings
+	               &len);                // Array of lengths of strings
 	free(src);
 
 	glCompileShader(shader);

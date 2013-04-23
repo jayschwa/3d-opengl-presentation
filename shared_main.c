@@ -1,6 +1,12 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define GLFW_INCLUDE_GL3
+#define GLFW_NO_GLU
 #include <GL/glfw.h>
+
+#include "shared.h"
 
 extern char *title;
 
