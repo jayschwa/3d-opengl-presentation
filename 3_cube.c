@@ -72,6 +72,19 @@ void mouseMove(int x, int y)
 	}
 }
 
+void mouseWheel(int w)
+{
+	int i;
+	for (i=0; i<3; i++) {
+		g_view_position[i] /= g_view_distance;
+	}
+	g_view_distance -= (float)w / 100;
+	for (i=0; i<3; i++) {
+		g_view_position[i] *= g_view_distance;
+	}
+	glfwSetMouseWheel(0);
+}
+
 float g_projection_matrix[16] = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
@@ -84,8 +97,8 @@ void resize(int width, int height)
 	glViewport(0, 0, width, height);
 
 	float fov = 60;
-	float near = 1;
-	float far = 120;
+	float near = 0.1;
+	float far = 100;
 
 	float aspect = (float)width / (float)height;
 	float top = near * tanf(fov * M_PI / 360.0);
@@ -132,6 +145,7 @@ bool sceneInit()
 {
 	glfwSetMousePosCallback(mouseMove);
 	glfwSetMouseButtonCallback(mouseClick);
+	glfwSetMouseWheelCallback(mouseWheel);
 	glfwSetWindowSizeCallback(resize);
 
 	glEnable(GL_CULL_FACE);  // Don't draw back side of triangles
