@@ -16,7 +16,7 @@ const float origin_direction[3] = { 0, 0, 1 };
 
 float g_cube_pitch = 0;
 float g_cube_yaw = 0;
-float g_cube_position[3] = { 0, 0, -4 };
+float g_cube_position[3] = { 0, 0, 0 };
 float g_cube_direction[3] = { 0, 0, 1 };
 
 float g_view_pitch = 0;
@@ -53,7 +53,9 @@ void mouseMove(int x, int y)
 		glfwSetMousePos(0, 0);
 	}
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == 1) {
-		g_view_pitch -= (float)y / 1000;
+		g_view_position[0] += (float)x / 1000;
+		g_view_position[1] -= (float)y / 1000;
+		/*g_view_pitch -= (float)y / 1000;
 		if (g_view_pitch < -max_pitch) {
 			g_view_pitch = -max_pitch;
 		} else if (g_view_pitch > max_pitch) {
@@ -65,9 +67,9 @@ void mouseMove(int x, int y)
 		g_view_position[2] = cosf(g_view_yaw) * cosf(g_view_pitch);
 		int i;
 		for (i=0; i<3; i++) {
-			g_view_direction[i] = -g_view_position[i];
+			//g_view_direction[i] = -g_view_position[i];
 			g_view_position[i] *= g_view_distance;
-		}
+		}*/
 		glfwSetMousePos(0, 0);
 	}
 }
