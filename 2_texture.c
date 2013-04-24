@@ -15,7 +15,7 @@ GLuint g_main_indices_buf; // Vertex indices handle
 GLuint g_main_indices_len; // Number of vertex indices
 GLuint g_main_vao_state;   // Attribute state handle
 
-GLint g_main_u_tex_image;  // Texture sampler handle
+GLint  g_main_u_tex_image; // Texture sampler handle
 
 GLuint g_texture; // Texture handle
 

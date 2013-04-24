@@ -11,19 +11,19 @@ const char *title = "3D Space";
 
 extern const char tex_data[];
 
-const float identity[] = {
-	1.0, 0.0, 0.0, 0.0,
-	0.0, 1.0, 0.0, 0.0,
-	0.0, 0.0, 1.0, 0.0,
-	0.0, 0.0, 0.0, 1.0
-};
-float g_view_pitch = 0;
-float g_view_yaw = 0;
-float g_view_position[3] = { 1, 0, 0 };
+const float origin_position[3] = { 0, 0, 0 };
+const float origin_direction[3] = { 0, 0, 1 };
 
 float g_cube_pitch = 0;
 float g_cube_yaw = 0;
-float g_cube_direction[3] = { 1, 0, 0 };
+float g_cube_position[3] = { 0, 0, -4 };
+float g_cube_direction[3] = { 0, 0, 1 };
+
+float g_view_pitch = 0;
+float g_view_yaw = 0;
+float g_view_distance = 2;
+float g_view_position[3] = { 0, 0, 2 };
+float g_view_direction[3] = { 0, 0, -1 };
 
 void mouseClick(int key, int pressed) {
 	static int x, y;
@@ -38,32 +38,66 @@ void mouseClick(int key, int pressed) {
 }
 void mouseMove(int x, int y)
 {
+	const float max_pitch = M_PI_2 - 0.1 * M_PI_2;
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == 1) {
-		g_cube_pitch += (float)y / 300;
-		if (g_cube_pitch <= -M_PI_2) {
-			g_cube_pitch = -M_PI_2 + 0.01 * M_PI_2;
-		} else if (g_cube_pitch >= M_PI_2) {
-			g_cube_pitch = M_PI_2 - 0.01 * M_PI_2;
+		g_cube_pitch -= (float)y / 1000;
+		if (g_cube_pitch < -max_pitch) {
+			g_cube_pitch = -max_pitch;
+		} else if (g_cube_pitch > max_pitch) {
+			g_cube_pitch = max_pitch;
 		}
-		g_cube_yaw += (float)x / 300;
-		g_cube_direction[0] = cosf(g_view_yaw) * cosf(g_view_pitch);
-		g_cube_direction[1] = sinf(g_view_pitch);
-		g_cube_direction[2] = sinf(g_view_yaw) * cosf(g_view_pitch);
+		g_cube_yaw += (float)x / 500;
+		g_cube_direction[0] = sinf(g_cube_yaw) * cosf(g_cube_pitch);
+		g_cube_direction[1] = sinf(g_cube_pitch);
+		g_cube_direction[2] = cosf(g_cube_yaw) * cosf(g_cube_pitch);
 		glfwSetMousePos(0, 0);
 	}
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == 1) {
-		g_view_pitch += (float)y / 300;
-		if (g_view_pitch <= -M_PI_2) {
-			g_view_pitch = -M_PI_2 + 0.01 * M_PI_2;
-		} else if (g_view_pitch >= M_PI_2) {
-			g_view_pitch = M_PI_2 - 0.01 * M_PI_2;
+		g_view_pitch -= (float)y / 1000;
+		if (g_view_pitch < -max_pitch) {
+			g_view_pitch = -max_pitch;
+		} else if (g_view_pitch > max_pitch) {
+			g_view_pitch = max_pitch;
 		}
-		g_view_yaw += (float)x / 300;
-		g_view_position[0] = cosf(g_view_yaw) * cosf(g_view_pitch);
+		g_view_yaw -= (float)x / 500;
+		g_view_position[0] = sinf(g_view_yaw) * cosf(g_view_pitch);
 		g_view_position[1] = sinf(g_view_pitch);
-		g_view_position[2] = sinf(g_view_yaw) * cosf(g_view_pitch);
+		g_view_position[2] = cosf(g_view_yaw) * cosf(g_view_pitch);
+		int i;
+		for (i=0; i<3; i++) {
+			g_view_direction[i] = -g_view_position[i];
+			g_view_position[i] *= g_view_distance;
+		}
 		glfwSetMousePos(0, 0);
 	}
+}
+
+float g_projection_matrix[16] = {
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0
+};
+
+void resize(int width, int height)
+{
+	glViewport(0, 0, width, height);
+
+	float fov = 60;
+	float near = 1;
+	float far = 120;
+
+	float aspect = (float)width / (float)height;
+	float top = near * tanf(fov * M_PI / 360.0);
+	float bottom = -top;
+	float right = top * aspect;
+	float left = -right;
+
+	g_projection_matrix[0]  = (2.0 * near) / (right - left);
+	g_projection_matrix[5]  = (2.0 * near) / (top - bottom);
+	g_projection_matrix[10] = (-far - near) / (far - near);
+	g_projection_matrix[11] = -1.0;
+	g_projection_matrix[14] = (-2.0 * near * far) / (far - near);
 }
 
 GLuint g_axis_program;     // Shader program handle
@@ -71,15 +105,24 @@ GLuint g_axis_indices_buf; // Vertex indices handle
 GLuint g_axis_indices_len; // Number of vertex indices
 GLuint g_axis_vao_state;   // Attribute state handle
 
+GLint  g_axis_u_model_position;
+GLint  g_axis_u_model_direction;
 GLint  g_axis_u_view_position;
+GLint  g_axis_u_view_direction;
+GLint  g_axis_u_view2projection;
+GLint  g_axis_u_dotted;
 
 GLuint g_main_program;     // Shader program handle
 GLuint g_main_indices_buf; // Vertex indices handle
 GLuint g_main_indices_len; // Number of vertex indices
 GLuint g_main_vao_state;   // Attribute state handle
 
-GLint g_main_u_view_position; // View position handle
-GLint g_main_u_tex_image;     // Texture sampler handle
+GLint  g_main_u_model_position;
+GLint  g_main_u_model_direction;
+GLint  g_main_u_view_position;
+GLint  g_main_u_view_direction;
+GLint  g_main_u_view2projection;
+GLint  g_main_u_tex_image; // Texture sampler handle
 
 GLuint g_texture; // Texture handle
 
@@ -89,6 +132,7 @@ bool sceneInit()
 {
 	glfwSetMousePosCallback(mouseMove);
 	glfwSetMouseButtonCallback(mouseClick);
+	glfwSetWindowSizeCallback(resize);
 
 	glEnable(GL_CULL_FACE);  // Don't draw back side of triangles
 	glEnable(GL_DEPTH_TEST); // Don't draw triangles behind other triangles
@@ -101,7 +145,12 @@ bool sceneInit()
 	g_axis_program = loadprogram("axis");
 
 	// Get uniform locations
+	g_axis_u_model_position = glGetUniformLocation(g_axis_program, "model_position");
+	g_axis_u_model_direction = glGetUniformLocation(g_axis_program, "model_direction");
 	g_axis_u_view_position = glGetUniformLocation(g_axis_program, "view_position");
+	g_axis_u_view_direction = glGetUniformLocation(g_axis_program, "view_direction");
+	g_axis_u_view2projection = glGetUniformLocation(g_axis_program, "view2projection");
+	g_axis_u_dotted = glGetUniformLocation(g_axis_program, "dotted");
 
 	// Setup axis program's vertex data buffer
 	glGenBuffers(1, &vertex_buf);
@@ -145,7 +194,11 @@ bool sceneInit()
 	g_main_program = loadprogram(__FILE__);
 
 	// Get uniform locations
+	g_main_u_model_position = glGetUniformLocation(g_main_program, "model_position");
+	g_main_u_model_direction = glGetUniformLocation(g_main_program, "model_direction");
 	g_main_u_view_position = glGetUniformLocation(g_main_program, "view_position");
+	g_main_u_view_direction = glGetUniformLocation(g_main_program, "view_direction");
+	g_main_u_view2projection = glGetUniformLocation(g_main_program, "view2projection");
 	g_main_u_tex_image = glGetUniformLocation(g_main_program, "tex_image");
 
 	// Create buffer for vertex data
@@ -281,7 +334,26 @@ void sceneDraw()
 
 	// Draw world space axes
 	glUseProgram(g_axis_program);
+	glUniform3fv(g_axis_u_model_position, 1, origin_position);
+	glUniform3fv(g_axis_u_model_direction, 1, origin_direction);
 	glUniform3fv(g_axis_u_view_position, 1, g_view_position);
+	glUniform3fv(g_axis_u_view_direction, 1, g_view_direction);
+	glUniformMatrix4fv(g_axis_u_view2projection, 1, false, g_projection_matrix);
+	glUniform1ui(g_axis_u_dotted, false);
+	glBindVertexArray(g_axis_vao_state);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_axis_indices_buf);
+	glDrawElements(GL_LINES, g_axis_indices_len, GL_UNSIGNED_BYTE, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	// Draw cube model space axes
+	glUseProgram(g_axis_program);
+	glUniform3fv(g_axis_u_model_position, 1, g_cube_position);
+	glUniform3fv(g_axis_u_model_direction, 1, g_cube_direction);
+	glUniform3fv(g_axis_u_view_position, 1, g_view_position);
+	glUniform3fv(g_axis_u_view_direction, 1, g_view_direction);
+	glUniformMatrix4fv(g_axis_u_view2projection, 1, false, g_projection_matrix);
+	glUniform1ui(g_axis_u_dotted, true);
 	glBindVertexArray(g_axis_vao_state);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_axis_indices_buf);
 	glDrawElements(GL_LINES, g_axis_indices_len, GL_UNSIGNED_BYTE, 0);
@@ -292,7 +364,11 @@ void sceneDraw()
 	glUseProgram(g_main_program);
 
 	// Write to uniforms
+	glUniform3fv(g_main_u_model_position, 1, g_cube_position);
+	glUniform3fv(g_main_u_model_direction, 1, g_cube_direction);
 	glUniform3fv(g_main_u_view_position, 1, g_view_position);
+	glUniform3fv(g_main_u_view_direction, 1, g_view_direction);
+	glUniformMatrix4fv(g_main_u_view2projection, 1, false, g_projection_matrix);
 
 	// Restore attribute state
 	glBindVertexArray(g_main_vao_state);
