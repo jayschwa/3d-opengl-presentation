@@ -46,30 +46,28 @@ void mouseMove(int x, int y)
 		} else if (g_cube_pitch > max_pitch) {
 			g_cube_pitch = max_pitch;
 		}
-		g_cube_yaw += (float)x / 500;
+		g_cube_yaw -= (float)x / 500;
 		g_cube_direction[0] = sinf(g_cube_yaw) * cosf(g_cube_pitch);
 		g_cube_direction[1] = sinf(g_cube_pitch);
 		g_cube_direction[2] = cosf(g_cube_yaw) * cosf(g_cube_pitch);
 		glfwSetMousePos(0, 0);
 	}
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == 1) {
-		g_view_position[0] += (float)x / 1000;
-		g_view_position[1] -= (float)y / 1000;
-		/*g_view_pitch -= (float)y / 1000;
+		g_view_pitch -= (float)y / 1000;
 		if (g_view_pitch < -max_pitch) {
 			g_view_pitch = -max_pitch;
 		} else if (g_view_pitch > max_pitch) {
 			g_view_pitch = max_pitch;
 		}
-		g_view_yaw -= (float)x / 500;
+		g_view_yaw += (float)x / 500;
 		g_view_position[0] = sinf(g_view_yaw) * cosf(g_view_pitch);
 		g_view_position[1] = sinf(g_view_pitch);
 		g_view_position[2] = cosf(g_view_yaw) * cosf(g_view_pitch);
 		int i;
 		for (i=0; i<3; i++) {
-			//g_view_direction[i] = -g_view_position[i];
+			g_view_direction[i] = -g_view_position[i];
 			g_view_position[i] *= g_view_distance;
-		}*/
+		}
 		glfwSetMousePos(0, 0);
 	}
 }
