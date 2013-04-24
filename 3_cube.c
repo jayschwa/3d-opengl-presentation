@@ -40,13 +40,13 @@ void mouseMove(int x, int y)
 {
 	const float max_pitch = M_PI_2 - 0.1 * M_PI_2;
 	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == 1) {
-		g_cube_pitch += (float)y / 1000;
+		g_cube_pitch -= (float)y / 1000;
 		if (g_cube_pitch < -max_pitch) {
 			g_cube_pitch = -max_pitch;
 		} else if (g_cube_pitch > max_pitch) {
 			g_cube_pitch = max_pitch;
 		}
-		g_cube_yaw -= (float)x / 500;
+		g_cube_yaw += (float)x / 500;
 		g_cube_direction[0] = sinf(g_cube_yaw) * cosf(g_cube_pitch);
 		g_cube_direction[1] = sinf(g_cube_pitch);
 		g_cube_direction[2] = cosf(g_cube_yaw) * cosf(g_cube_pitch);

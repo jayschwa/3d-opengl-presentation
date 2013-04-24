@@ -25,17 +25,17 @@ mat4 rotmat(in vec3 dir)
 	vec3 Z = normalize(dir);
 	vec3 X = normalize(cross(vec3(0,1,0), Z));
 	vec3 Y = cross(Z, X);
-	return transpose(mat4(
+	return mat4(
 		vec4(X,       0),
 		vec4(Y,       0),
 		vec4(Z,       0),
-		vec4(vec3(0), 1)));
+		vec4(vec3(0), 1));
 }
 
 void main()
 {
 	mat4 model2world = posmat(model_position) * rotmat(model_direction);
-	mat4 world2view = rotmat(-view_direction) * posmat(-view_position);
+	mat4 world2view = transpose(rotmat(-view_direction)) * posmat(-view_position);
 	gl_Position = (view2projection * world2view * model2world) * vec4(vertex_position, 1.0);
 	fragment_tex_coords = vertex_tex_coords;
 }
