@@ -1,5 +1,7 @@
 #version 150
 
+uniform vec3 view_position;
+
 uniform sampler2D tex_image;
 
 in vec3 fragment_position;
@@ -22,8 +24,15 @@ void main()
 	float light_dist = distance(fragment_position, light_origin);
 	float falloff = (light_radius - light_dist) / light_radius;
 	falloff = pow(max(falloff, 0), 2);
-	float angle = dot(fragment_normal, normalize(light_origin - fragment_position));
+	float angle = -dot(fragment_normal, normalize(fragment_position - light_origin));
 	angle = max(angle, 0);
+	light += light_color * falloff * angle;
+
+	// specular light
+	vec3 view_angle = normalize(fragment_position - view_position);
+	vec3 reflect_angle = normalize(reflect(fragment_position - light_origin, fragment_normal));
+	angle = -dot(view_angle, reflect_angle);
+	angle = pow(max(angle, 0), 60);
 	light += light_color * falloff * angle;
 
 	FragColor = texture(tex_image, fragment_tex_coords);
