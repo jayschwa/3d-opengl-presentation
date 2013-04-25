@@ -9,7 +9,7 @@
 
 const char *title = "3D Space";
 
-extern const char tex_data[];
+extern const char diffuse_map_data[];
 
 const float origin_position[3] = { 0, 0, 0 };
 const float origin_direction[3] = { 0, 0, 1 };
@@ -332,7 +332,7 @@ bool sceneInit()
 	             0,
 	             GL_RGBA,          // Format
 	             GL_UNSIGNED_BYTE, // Pixel component data type
-	             tex_data);        // Pointer to pixel data
+	             diffuse_map_data);// Pointer to pixel data
 
 	// Texture distance filters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
