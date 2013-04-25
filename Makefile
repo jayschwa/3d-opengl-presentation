@@ -2,7 +2,8 @@ BINS = \
     0_empty_window.bin \
     1_triangle.bin \
     2_texture.bin \
-    3_cube.bin
+    3_cube.bin \
+    4_light.bin
 
 SHARED_OBJS = \
     shared_main.o \
