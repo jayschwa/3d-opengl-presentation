@@ -12,6 +12,7 @@ in vec3 vertex_position;
 in vec3 vertex_normal;
 in vec2 vertex_tex_coords;
 
+out vec3 fragment_position;
 out vec3 fragment_normal;
 out vec2 fragment_tex_coords;
 
@@ -39,6 +40,7 @@ void main()
 	mat4 model2world = posmat(model_position) * rotmat(model_direction);
 	mat4 world2view = transpose(rotmat(-view_direction)) * posmat(-view_position);
 	gl_Position = (view2projection * world2view * model2world) * vec4(vertex_position, 1.0);
-	fragment_normal = vertex_normal;
+	fragment_position = (model2world * vec4(vertex_position, 1.0)).xyz;
+	fragment_normal = (rotmat(model_direction) * vec4(vertex_normal, 1.0)).xyz;
 	fragment_tex_coords = vertex_tex_coords;
 }
