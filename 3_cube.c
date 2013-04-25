@@ -21,8 +21,8 @@ float g_cube_direction[3] = { 0, 0, 1 };
 
 float g_view_pitch = 0;
 float g_view_yaw = 0;
-float g_view_distance = 2;
-float g_view_position[3] = { 0, 0, 2 };
+float g_view_distance = 2.5;
+float g_view_position[3] = { 0, 0, 2.5 };
 float g_view_direction[3] = { 0, 0, -1 };
 
 void mouseClick(int key, int pressed) {
@@ -71,7 +71,6 @@ void mouseMove(int x, int y)
 		glfwSetMousePos(0, 0);
 	}
 }
-
 void mouseWheel(int w)
 {
 	int i;
