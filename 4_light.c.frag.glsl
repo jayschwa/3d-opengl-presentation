@@ -32,7 +32,7 @@ void main()
 	vec3 view_angle = normalize(fragment_position - view_position);
 	vec3 reflect_angle = normalize(reflect(fragment_position - light_origin, fragment_normal));
 	angle = -dot(view_angle, reflect_angle);
-	angle = pow(max(angle, 0), 60);
+	angle = pow(max(angle, 0), 120);
 	light += light_color * falloff * angle;
 
 	FragColor = texture(tex_image, fragment_tex_coords);
