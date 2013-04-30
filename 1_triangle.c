@@ -34,10 +34,10 @@ bool sceneInit()
 		 0.0,  0.8,  0.0,  1.0,  0.0,  0.0,   // v0: red top,
 		-0.8, -0.8,  0.0,  0.0,  1.0,  0.0,   // v1: green lower left
 		 0.8, -0.8,  0.0,  0.0,  0.0,  1.0 }; // v2: blue lower right
-	glBufferData(GL_ARRAY_BUFFER, // Where to write data
-	             sizeof(vertex_data) * sizeof(vertex_data[0]), // Size (bytes)
-	             vertex_data,     // Pointer to data
-	             GL_STATIC_DRAW); // How data will be used
+	glBufferData(GL_ARRAY_BUFFER,     // Where to write data
+	             sizeof(vertex_data), // Size (bytes)
+	             vertex_data,         // Pointer to data
+	             GL_STATIC_DRAW);     // How data will be used
 
 	// Create "vertex array" state object
 	glGenVertexArrays(1, &g_main_vao_state);

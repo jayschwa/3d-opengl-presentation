@@ -174,10 +174,10 @@ bool sceneInit()
 		 1.0,  0.0,  0.0,   // v1: x-axis
 		 0.0,  1.0,  0.0,   // v2: y-axis
 		 0.0,  0.0,  1.0 }; // v3: z-axis
-	glBufferData(GL_ARRAY_BUFFER, // Where to write data
-	             sizeof(axis_data) * sizeof(axis_data[0]), // Size (bytes)
-	             axis_data,       // Pointer to data
-	             GL_STATIC_DRAW); // How data will be used
+	glBufferData(GL_ARRAY_BUFFER,   // Where to write data
+	             sizeof(axis_data), // Size (bytes)
+	             axis_data,         // Pointer to data
+	             GL_STATIC_DRAW);   // How data will be used
 
 	// Setup axis program's position attribute
 	glGenVertexArrays(1, &g_axis_vao_state);
@@ -254,10 +254,10 @@ bool sceneInit()
 		 0.5, -0.5,  0.5,  0.0, -1.0,  0.0,  1.0,  0.0,   // v22: upper right
 		 0.5, -0.5, -0.5,  0.0, -1.0,  0.0,  1.0,  1.0 }; // v23: lower right
 
-	glBufferData(GL_ARRAY_BUFFER, // Where to write data
-	             sizeof(vertex_data) * sizeof(vertex_data[0]), // Size (bytes)
-	             vertex_data,     // Pointer to data
-	             GL_STATIC_DRAW); // How data will be used
+	glBufferData(GL_ARRAY_BUFFER,     // Where to write data
+	             sizeof(vertex_data), // Size (bytes)
+	             vertex_data,         // Pointer to data
+	             GL_STATIC_DRAW);     // How data will be used
 
 	// Create "vertex array" state object
 	glGenVertexArrays(1, &g_main_vao_state);
