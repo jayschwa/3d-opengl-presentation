@@ -10,7 +10,7 @@ uniform mat4 view2projection;
 
 in vec3 vertex_position;
 
-out vec3 fragment_position;
+out float axis_position;
 flat out vec3 fragment_color;
 
 mat4 posmat(in vec3 pos)
@@ -37,6 +37,6 @@ void main()
 	mat4 model2world = posmat(model_position) * rotmat(model_direction);
 	mat4 world2view = transpose(rotmat(-view_direction)) * posmat(-view_position);
 	gl_Position = (view2projection * world2view * model2world) * vec4(vertex_position, 1.0);
-	fragment_position = vertex_position;
+	axis_position = dot(vertex_position, vec3(1.0));
 	fragment_color = vertex_position;
 }
