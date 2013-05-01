@@ -7,7 +7,7 @@
 
 #include "shared.h"
 
-const char *title = "Bumpmapping";
+const char *title = "Bump mapping";
 
 extern const char diffuse_map_data[];
 extern const char normal_map_data[];
