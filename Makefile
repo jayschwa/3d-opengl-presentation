@@ -25,6 +25,8 @@ all: $(BINS)
 %.bin: %.o $(SHARED_OBJS)
 	$(CC) -o $@ $^ $(LIBS)
 
+.SECONDARY: $(SHARED_OBJS)
+
 clean:
 	rm -rf *.bin *.o
 .PHONY: clean
