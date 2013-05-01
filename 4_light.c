@@ -7,7 +7,7 @@
 
 #include "shared.h"
 
-const char *title = "3D Space";
+const char *title = "Lighting";
 
 extern const char diffuse_map_data[];
 
