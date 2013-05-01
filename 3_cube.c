@@ -342,6 +342,13 @@ bool sceneInit()
 // Called every frame
 void sceneDraw()
 {
+	// Arrow keys alter cube position
+	const float move_dist = 0.01;
+	g_cube_position[0] += glfwGetKey(GLFW_KEY_RIGHT) * move_dist;
+	g_cube_position[0] += glfwGetKey(GLFW_KEY_LEFT) * -move_dist;
+	g_cube_position[1] += glfwGetKey(GLFW_KEY_UP) *    move_dist;
+	g_cube_position[1] += glfwGetKey(GLFW_KEY_DOWN) * -move_dist;
+
 	// Clear screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

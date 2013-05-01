@@ -14,7 +14,7 @@ const vec3 ambient_light = vec3(0.1, 0.1, 0.1);
 
 const vec3 light_origin = vec3(1);
 const vec3 light_color = vec3(1);
-const float light_radius = 10;
+const float light_radius = 5;
 
 void main()
 {
