@@ -98,17 +98,12 @@ void sceneDraw()
 	// Restore attribute state
 	glBindVertexArray(g_main_vao_state);
 
-	// Bind vertex indices buffer to "mount point"
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_main_indices_buf);
-
-	// Draw triangles from GL_ELEMENT_ARRAY_BUFFER data
+	// Draw triangles
+	char indices[] = { 0, 1, 2 };      // Indices of vertices to draw
 	glDrawElements(GL_TRIANGLES,       // Draw mode
-	               g_main_indices_len, // Number of elements
+	               sizeof(indices),    // Number of elements
 	               GL_UNSIGNED_BYTE,   // Element data type
-	               0);                 // Offset to first index
-
-	// Unbind vertex indices buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	               indices);           // Pointer to index buffer
 
 	// Clear attribute state
 	glBindVertexArray(0);
