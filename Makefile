@@ -15,7 +15,7 @@ LIBS = -lglfw
 
 OS := $(shell uname -s)
 ifeq ($(OS),Darwin)
-	LIBS += -framework OpenGL
+	LIBS += -framework OpenGL -framework IOKit -framework Cocoa
 else
 	LIBS += -lGL -lm
 endif
