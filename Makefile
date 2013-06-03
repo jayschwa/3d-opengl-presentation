@@ -17,7 +17,7 @@ OS := $(shell uname -s)
 ifeq ($(OS),Darwin)
 	LIBS += -framework OpenGL
 else
-	LIBS += -lGL
+	LIBS += -lGL -lm
 endif
 
 all: $(BINS)
