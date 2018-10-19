@@ -3,9 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define GLFW_INCLUDE_GL3
-#define GLFW_NO_GLU
-#include <GL/glfw.h>
+#include "shared.h"
 
 // Read file and return contents in buffer
 char *readfile(const char *name)

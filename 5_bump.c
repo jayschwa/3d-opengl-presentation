@@ -1,9 +1,4 @@
-#include <stdbool.h>
 #include <math.h>
-
-#define GLFW_INCLUDE_GL3
-#define GLFW_NO_GLU
-#include <GL/glfw.h>
 
 #include "shared.h"
 
@@ -26,21 +21,21 @@ float g_view_distance = 2.5;
 float g_view_position[3] = { 0, 0, 2.5 };
 float g_view_direction[3] = { 0, 0, -1 };
 
-void mouseClick(int key, int pressed) {
-	static int x, y;
-	if (pressed == 1) {
-		glfwGetMousePos(&x, &y);
-		glfwDisable(GLFW_MOUSE_CURSOR);
-		glfwSetMousePos(0, 0);
+void mouseClick(GLFWwindow *window, int key, int action, int mods) {
+	static double x, y;
+	if (action == GLFW_PRESS) {
+		glfwGetCursorPos(window, &x, &y);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPos(window, 0, 0);
 	} else {
-		glfwEnable(GLFW_MOUSE_CURSOR);
-		glfwSetMousePos(x, y);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetCursorPos(window, x, y);
 	}
 }
-void mouseMove(int x, int y)
+void mouseMove(GLFWwindow *window, double x, double y)
 {
 	const float max_pitch = M_PI_2 - 0.1 * M_PI_2;
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == 1) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == 1) {
 		g_cube_pitch -= (float)y / 1000;
 		if (g_cube_pitch < -max_pitch) {
 			g_cube_pitch = -max_pitch;
@@ -51,9 +46,9 @@ void mouseMove(int x, int y)
 		g_cube_direction[0] = sinf(g_cube_yaw) * cosf(g_cube_pitch);
 		g_cube_direction[1] = sinf(g_cube_pitch);
 		g_cube_direction[2] = cosf(g_cube_yaw) * cosf(g_cube_pitch);
-		glfwSetMousePos(0, 0);
+		glfwSetCursorPos(window, 0, 0);
 	}
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) == 1) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == 1) {
 		g_view_pitch -= (float)y / 1000;
 		if (g_view_pitch < -max_pitch) {
 			g_view_pitch = -max_pitch;
@@ -69,20 +64,19 @@ void mouseMove(int x, int y)
 			g_view_direction[i] = -g_view_position[i];
 			g_view_position[i] *= g_view_distance;
 		}
-		glfwSetMousePos(0, 0);
+		glfwSetCursorPos(window, 0, 0);
 	}
 }
-void mouseWheel(int w)
+void mouseWheel(GLFWwindow *window, double xoff, double yoff)
 {
 	int i;
 	for (i=0; i<3; i++) {
 		g_view_position[i] /= g_view_distance;
 	}
-	g_view_distance -= (float)w / 100;
+	g_view_distance -= (float)yoff / 10;
 	for (i=0; i<3; i++) {
 		g_view_position[i] *= g_view_distance;
 	}
-	glfwSetMouseWheel(0);
 }
 
 float g_projection_matrix[16] = {
@@ -92,7 +86,7 @@ float g_projection_matrix[16] = {
 	0, 0, 0, 0
 };
 
-void resize(int width, int height)
+void resize(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 
@@ -145,10 +139,10 @@ GLuint g_normal_tex;
 // Called once at the start
 bool sceneInit()
 {
-	glfwSetMousePosCallback(mouseMove);
-	glfwSetMouseButtonCallback(mouseClick);
-	glfwSetMouseWheelCallback(mouseWheel);
-	glfwSetWindowSizeCallback(resize);
+	glfwSetCursorPosCallback(window, mouseMove);
+	glfwSetMouseButtonCallback(window, mouseClick);
+	glfwSetScrollCallback(window, mouseWheel);
+	glfwSetWindowSizeCallback(window, resize);
 
 	glEnable(GL_CULL_FACE);  // Don't draw back side of triangles
 	glEnable(GL_DEPTH_TEST); // Don't draw triangles behind other triangles
@@ -376,10 +370,10 @@ void sceneDraw()
 {
 	// Arrow keys alter cube position
 	const float move_dist = 0.01;
-	g_cube_position[0] += glfwGetKey(GLFW_KEY_RIGHT) * move_dist;
-	g_cube_position[0] += glfwGetKey(GLFW_KEY_LEFT) * -move_dist;
-	g_cube_position[1] += glfwGetKey(GLFW_KEY_UP) *    move_dist;
-	g_cube_position[1] += glfwGetKey(GLFW_KEY_DOWN) * -move_dist;
+	g_cube_position[0] += glfwGetKey(window, GLFW_KEY_RIGHT) * move_dist;
+	g_cube_position[0] += glfwGetKey(window, GLFW_KEY_LEFT) * -move_dist;
+	g_cube_position[1] += glfwGetKey(window, GLFW_KEY_UP) *    move_dist;
+	g_cube_position[1] += glfwGetKey(window, GLFW_KEY_DOWN) * -move_dist;
 
 	// Clear screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

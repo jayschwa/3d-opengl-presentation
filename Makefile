@@ -23,9 +23,7 @@ endif
 all: $(BINS)
 
 %.bin: %.o $(SHARED_OBJS)
-	$(CC) -o $@ $^ $(LIBS)
-
-.SECONDARY: $(SHARED_OBJS)
+	$(CC) -O2 -o $@ $^ $(LIBS)
 
 clean:
 	rm -rf *.bin *.o

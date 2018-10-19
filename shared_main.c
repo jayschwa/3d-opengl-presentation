@@ -1,14 +1,9 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define GLFW_INCLUDE_GL3
-#define GLFW_NO_GLU
-#include <GL/glfw.h>
-
 #include "shared.h"
 
-extern char *title;
+GLFWwindow *window = NULL;
 
 int main(void)
 {
@@ -18,19 +13,20 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 	// Use OpenGL 3.x
-	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
 	// Do not use deprecated legacy functions
-	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	// Create window and its OpenGL context
-	if (!glfwOpenWindow(640, 480, 8, 8, 8, 0, 24, 0, GLFW_WINDOW)) {
+	window = glfwCreateWindow(640, 480, title, NULL, NULL);
+	if (!window) {
 		fprintf(stderr, "glfwOpenWindow() failed\n");
 		return EXIT_FAILURE;
 	}
-	glfwSetWindowTitle(title);
+	glfwMakeContextCurrent(window);
 
 	// Initialize scene
 	if (!sceneInit()) {
@@ -38,12 +34,13 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 	// Loop until the user closes the window
-	while (glfwGetWindowParam(GLFW_OPENED)) {
+	while (!glfwWindowShouldClose(window)) {
 		// Draw scene
 		sceneDraw();
 
 		// Swap front and back buffers and process events
-		glfwSwapBuffers();
+		glfwSwapBuffers(window);
+		glfwWaitEvents();
 	}
 
 	return EXIT_SUCCESS;
